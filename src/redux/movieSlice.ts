@@ -35,7 +35,7 @@ export const searchMovies = createAsyncThunk(
   async ({ query, page = 1 }: { query: string; page?: number }, { rejectWithValue }) => {
     try {
       // You'll need to add your TMDB API key to an environment variable
-      const API_KEY = import.meta.env.TMDB_API_KEY;
+      const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
       
       console.log('API Key:', API_KEY);
       console.log('Query:', query);
