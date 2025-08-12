@@ -11,22 +11,60 @@ export interface Movie {
   vote_average: number;
 }
 
+// Filter function
+const applyFiltersToMovies = (movies: Movie[], filters: MovieSearchState['filters']): Movie[] => {
+  return movies.filter(movie => {
+    // Year filter
+    const movieYear = new Date(movie.release_date).getFullYear();
+    if (movieYear < filters.yearRange[0] || movieYear > filters.yearRange[1]) {
+      return false;
+    }
+    
+    // Rating filter
+    if (movie.vote_average < filters.minRating) {
+      return false;
+    }
+    
+    // Genre filter (for now, we'll use a simple approach)
+    // In a real app, you'd want to get genre data from the API
+    if (filters.genre !== 'all') {
+      // This is a placeholder - you'd need to add genre_ids to your Movie interface
+      // and get the actual genre data from TMDB API
+      return true; // For now, let's not filter by genre until we have genre data
+    }
+    
+    return true;
+  });
+};
+
 export interface MovieSearchState {
   movies: Movie[];
+  filteredMovies: Movie[];
   searchQuery: string;
   loading: boolean;
   error: string | null;
   totalResults: number;
   currentPage: number;
+  filters: {
+    yearRange: [number, number];
+    minRating: number;
+    genre: string;
+  };
 }
 
 const initialState: MovieSearchState = {
   movies: [],
+  filteredMovies: [],
   searchQuery: '',
   loading: false,
   error: null,
   totalResults: 0,
   currentPage: 1,
+  filters: {
+    yearRange: [1900, new Date().getFullYear()],
+    minRating: 0,
+    genre: 'all'
+  },
 };
 
 // Async thunk for searching movies
@@ -108,6 +146,19 @@ const movieSlice = createSlice({
     setCurrentPage: (state, action: PayloadAction<number>) => {
       state.currentPage = action.payload;
     },
+    setFilters: (state, action: PayloadAction<Partial<MovieSearchState['filters']>>) => {
+      state.filters = { ...state.filters, ...action.payload };
+      // Apply filters immediately when they change
+      state.filteredMovies = applyFiltersToMovies(state.movies, state.filters);
+    },
+    clearFilters: (state) => {
+      state.filters = {
+        yearRange: [1900, new Date().getFullYear()],
+        minRating: 0,
+        genre: 'all'
+      };
+      state.filteredMovies = state.movies;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -118,6 +169,8 @@ const movieSlice = createSlice({
       .addCase(searchMovies.fulfilled, (state, action) => {
         state.loading = false;
         state.movies = action.payload.movies;
+        // Apply current filters to new search results
+        state.filteredMovies = applyFiltersToMovies(action.payload.movies, state.filters);
         state.totalResults = action.payload.totalResults;
         state.currentPage = action.payload.page;
         state.error = null;
@@ -129,5 +182,5 @@ const movieSlice = createSlice({
   },
 });
 
-export const { setSearchQuery, clearSearch, setCurrentPage } = movieSlice.actions;
+export const { setSearchQuery, clearSearch, setCurrentPage, setFilters, clearFilters } = movieSlice.actions;
 export default movieSlice.reducer;

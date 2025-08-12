@@ -11,7 +11,7 @@ import type { RootState } from '../redux/store';
 import MovieCard from './MovieCard';
 
 const MovieList: React.FC = () => {
-  const { movies, loading, error, totalResults, searchQuery } = useSelector(
+  const { movies, filteredMovies, loading, error, totalResults, searchQuery } = useSelector(
     (state: RootState) => state.movies
   );
 
@@ -99,6 +99,31 @@ const MovieList: React.FC = () => {
     );
   }
 
+  // Check if filters are active and no filtered results
+  if (filteredMovies.length === 0 && movies.length > 0) {
+    return (
+      <Paper 
+        elevation={1} 
+        sx={{ 
+          p: 6, 
+          textAlign: 'center',
+          background: 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)',
+          borderRadius: 3
+        }}
+      >
+        <Typography variant="h5" component="h2" sx={{ mb: 2, color: '#2d3436' }}>
+          🔍 No movies match your filters
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+          Try adjusting your filter criteria or clearing the filters.
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Found {movies.length} movie{movies.length !== 1 ? 's' : ''} for "{searchQuery}"
+        </Typography>
+      </Paper>
+    );
+  }
+
   return (
     <Box sx={{ mt: 3 }}>
       <Box sx={{ mb: 3, textAlign: 'center' }}>
@@ -106,7 +131,10 @@ const MovieList: React.FC = () => {
           Search Results
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Found {totalResults} movie{totalResults !== 1 ? 's' : ''} for "{searchQuery}"
+          Showing {filteredMovies.length} of {totalResults} movie{totalResults !== 1 ? 's' : ''} for "{searchQuery}"
+          {filteredMovies.length !== totalResults && (
+            <span style={{ color: '#667eea', fontWeight: 'bold' }}> (filtered)</span>
+          )}
         </Typography>
       </Box>
       
@@ -120,7 +148,7 @@ const MovieList: React.FC = () => {
         },
         gap: 3
       }}>
-        {movies.map((movie) => (
+        {filteredMovies.map((movie) => (
           <Box key={movie.id}>
             <MovieCard movie={movie} />
           </Box>

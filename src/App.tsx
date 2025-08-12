@@ -1,4 +1,5 @@
 import SearchBar from "./components/SearchBar"
+import FilterBar from "./components/FilterBar"
 import MovieList from "./components/MovieList"
 
 function App() {
@@ -7,6 +8,7 @@ function App() {
     <>
       <div>
         <SearchBar/>
+        <FilterBar/>
         <MovieList/>
 
 
