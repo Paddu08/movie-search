@@ -31,7 +31,7 @@ interface FilterBarProps {
 
 const FilterBar: React.FC<FilterBarProps> = ({ isOpen, onToggle }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { movies, searchQuery, filters: reduxFilters } = useSelector((state: RootState) => state.movies);
+  const { filters: reduxFilters } = useSelector((state: RootState) => state.movies);
   
   const [localFilters, setLocalFilters] = useState<FilterState>({
     yearRange: [1900, new Date().getFullYear()],
@@ -69,14 +69,14 @@ const FilterBar: React.FC<FilterBarProps> = ({ isOpen, onToggle }) => {
     { value: 'western', label: 'Western' },
   ];
 
-  const handleYearChange = (event: Event, newValue: number | number[]) => {
+  const handleYearChange = (_event: Event, newValue: number | number[]) => {
     setLocalFilters(prev => ({
       ...prev,
       yearRange: newValue as [number, number]
     }));
   };
 
-  const handleRatingChange = (event: Event, newValue: number | number[]) => {
+  const handleRatingChange = (_event: Event, newValue: number | number[]) => {
     setLocalFilters(prev => ({
       ...prev,
       minRating: newValue as number

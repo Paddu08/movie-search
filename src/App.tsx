@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import SearchBar from "./components/SearchBar"
 import FilterBar from "./components/FilterBar"
 import MovieList from "./components/MovieList"
