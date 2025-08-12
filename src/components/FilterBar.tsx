@@ -24,7 +24,12 @@ interface FilterState {
   genre: string;
 }
 
-const FilterBar: React.FC = () => {
+interface FilterBarProps {
+  isOpen?: boolean;
+  onToggle?: (open: boolean) => void;
+}
+
+const FilterBar: React.FC<FilterBarProps> = ({ isOpen, onToggle }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { movies, searchQuery, filters: reduxFilters } = useSelector((state: RootState) => state.movies);
   
@@ -34,7 +39,9 @@ const FilterBar: React.FC = () => {
     genre: 'all'
   });
 
-  const [showFilters, setShowFilters] = useState(false);
+  // Use external state if provided, otherwise use internal state
+  const showFilters = isOpen !== undefined ? isOpen : false;
+  const setShowFilters = onToggle || (() => {});
 
   // Sync local filters with Redux filters when they change
   useEffect(() => {
@@ -98,14 +105,18 @@ const FilterBar: React.FC = () => {
     setShowFilters(false);
   };
 
+  const handleToggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
   // Check if any filters are active
   const hasActiveFilters = localFilters.genre !== 'all' || 
                          localFilters.minRating > 0 || 
                          localFilters.yearRange[0] > 1900 || 
                          localFilters.yearRange[1] < new Date().getFullYear();
 
-  // Only show filter bar if there are search results
-  if (!searchQuery || movies.length === 0) {
+  // Hide filter bar unless explicitly opened via filter icon
+  if (!showFilters) {
     return null;
   }
 
@@ -127,7 +138,7 @@ const FilterBar: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}
-        onClick={() => setShowFilters(!showFilters)}
+        onClick={handleToggleFilters}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <FilterIcon color="primary" />

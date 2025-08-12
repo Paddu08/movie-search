@@ -9,11 +9,15 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import { Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Clear as ClearIcon, FilterList as FilterIcon } from '@mui/icons-material';
 import type { AppDispatch, RootState } from '../redux/store';
 import { searchMovies, setSearchQuery, clearSearch } from '../redux/movieSlice';
 
-const SearchBar: React.FC = () => {
+interface SearchBarProps {
+  onFilterClick?: () => void;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({ onFilterClick }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { searchQuery, loading } = useSelector((state: RootState) => state.movies);
   const [localQuery, setLocalQuery] = useState(searchQuery);
@@ -123,6 +127,25 @@ const SearchBar: React.FC = () => {
         >
           {loading ? 'Searching...' : 'Search'}
         </Button>
+        
+        {searchQuery && (
+          <IconButton
+            onClick={onFilterClick}
+            sx={{
+              p: 1.5,
+              borderRadius: 2,
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              color: 'white',
+              border: '2px solid rgba(255,255,255,0.3)',
+              '&:hover': {
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderColor: 'rgba(255,255,255,0.5)',
+              }
+            }}
+          >
+            <FilterIcon />
+          </IconButton>
+        )}
       </Box>
       
       {searchQuery && (
