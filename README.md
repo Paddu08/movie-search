@@ -8,7 +8,7 @@ A React + TypeScript + Vite application for searching movies using The Movie Dat
 - [x] Project setup with React + TypeScript + Vite
 - [x] Redux store configuration
 - [x] Movie slice with search functionality
-- [x] Async thunk for API calls
+- [x] Async thunk for API calls 
 - [x] Type definitions for Movie and MovieSearchState
 - [x] SearchBar component with Material-UI
 - [x] Material-UI icons package installed
