@@ -1,14 +1,13 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import {
-  Grid,
   Typography,
   Box,
   CircularProgress,
   Alert,
   Paper,
 } from '@mui/material';
-import { RootState } from '../redux/store';
+import type { RootState } from '../redux/store';
 import MovieCard from './MovieCard';
 
 const MovieList: React.FC = () => {
@@ -111,13 +110,22 @@ const MovieList: React.FC = () => {
         </Typography>
       </Box>
       
-      <Grid container spacing={3}>
+      <Box sx={{ 
+        display: 'grid', 
+        gridTemplateColumns: {
+          xs: '1fr',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(3, 1fr)',
+          lg: 'repeat(4, 1fr)'
+        },
+        gap: 3
+      }}>
         {movies.map((movie) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={movie.id}>
+          <Box key={movie.id}>
             <MovieCard movie={movie} />
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 };
