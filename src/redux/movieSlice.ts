@@ -9,6 +9,7 @@ export interface Movie {
   poster_path: string;
   release_date: string;
   vote_average: number;
+  genre_ids: number[];  // Add genre IDs from TMDB
 }
 
 // Filter function
@@ -25,12 +26,32 @@ const applyFiltersToMovies = (movies: Movie[], filters: MovieSearchState['filter
       return false;
     }
     
-    // Genre filter (for now, we'll use a simple approach)
-    // In a real app, you'd want to get genre data from the API
+    // Genre filter - now actually works!
     if (filters.genre !== 'all') {
-      // This is a placeholder - you'd need to add genre_ids to your Movie interface
-      // and get the actual genre data from TMDB API
-      return true; // For now, let's not filter by genre until we have genre data
+      // Map genre names to TMDB genre IDs
+      const genreMap: { [key: string]: number } = {
+        'action': 28,
+        'adventure': 12,
+        'animation': 16,
+        'comedy': 35,
+        'crime': 80,
+        'documentary': 99,
+        'drama': 18,
+        'family': 10751,
+        'fantasy': 14,
+        'horror': 27,
+        'mystery': 9648,
+        'romance': 10749,
+        'sci-fi': 878,
+        'thriller': 53,
+        'war': 10752,
+        'western': 37
+      };
+      
+      const targetGenreId = genreMap[filters.genre];
+      if (targetGenreId && !movie.genre_ids.includes(targetGenreId)) {
+        return false;
+      }
     }
     
     return true;
@@ -87,7 +108,7 @@ export const searchMovies = createAsyncThunk(
         throw new Error('Search query cannot be empty');
       }
       
-      const fullUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&page=${page}`;
+      const fullUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&page=${page}&include_adult=false`;
       console.log('Full URL:', fullUrl);
       
       const response = await fetch(fullUrl, {
@@ -116,6 +137,12 @@ export const searchMovies = createAsyncThunk(
       
       const data = await response.json();
       console.log('Success response:', data);
+      
+      // Log first movie to see genre data structure
+      if (data.results && data.results.length > 0) {
+        console.log('First movie data:', data.results[0]);
+        console.log('Genre IDs:', data.results[0].genre_ids);
+      }
       
       return {
         movies: data.results,
