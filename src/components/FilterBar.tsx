@@ -22,6 +22,7 @@ interface FilterState {
   yearRange: [number, number];
   minRating: number;
   genre: string;
+  language: string; // <-- Add this
 }
 
 interface FilterBarProps {
@@ -36,7 +37,8 @@ const FilterBar: React.FC<FilterBarProps> = ({ isOpen, onToggle }) => {
   const [localFilters, setLocalFilters] = useState<FilterState>({
     yearRange: [1900, new Date().getFullYear()],
     minRating: 0,
-    genre: 'all'
+    genre: 'all',
+    language: 'all', // <-- Add this
   });
 
   // Use external state if provided, otherwise use internal state
@@ -45,7 +47,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isOpen, onToggle }) => {
 
   // Sync local filters with Redux filters when they change
   useEffect(() => {
-    setLocalFilters(reduxFilters);
+    setLocalFilters(reduxFilters as FilterState);
   }, [reduxFilters]);
 
   // Available genres (you can expand this list)
@@ -69,6 +71,18 @@ const FilterBar: React.FC<FilterBarProps> = ({ isOpen, onToggle }) => {
     { value: 'western', label: 'Western' },
   ];
 
+  const languages = [
+    { value: 'all', label: 'All Languages' },
+    { value: 'en', label: 'English' },
+    { value: 'hi', label: 'Hindi' },
+    { value: 'ta', label: 'Tamil' },
+    { value: 'te', label: 'Telugu' },
+    { value: 'ml', label: 'Malayalam' },
+    { value: 'fr', label: 'French' },
+    { value: 'es', label: 'Spanish' },
+    // ...add more as needed
+  ];
+
   const handleYearChange = (_event: Event, newValue: number | number[]) => {
     setLocalFilters(prev => ({
       ...prev,
@@ -90,11 +104,19 @@ const FilterBar: React.FC<FilterBarProps> = ({ isOpen, onToggle }) => {
     }));
   };
 
+  const handleLanguageChange = (event: SelectChangeEvent<string>) => {
+    setLocalFilters(prev => ({
+      ...prev,
+      language: event.target.value
+    }));
+  };
+
   const handleClearFilters = () => {
     const defaultFilters: FilterState = {
       yearRange: [1900, new Date().getFullYear()] as [number, number],
       minRating: 0,
-      genre: 'all'
+      genre: 'all',
+      language: 'all', // <-- Add this
     };
     setLocalFilters(defaultFilters);
     dispatch(clearFilters());
@@ -113,7 +135,8 @@ const FilterBar: React.FC<FilterBarProps> = ({ isOpen, onToggle }) => {
   const hasActiveFilters = localFilters.genre !== 'all' || 
                          localFilters.minRating > 0 || 
                          localFilters.yearRange[0] > 1900 || 
-                         localFilters.yearRange[1] < new Date().getFullYear();
+                         localFilters.yearRange[1] < new Date().getFullYear() ||
+                         localFilters.language !== 'all'; // <-- Add this
 
   // Hide filter bar unless explicitly opened via filter icon
   if (!showFilters) {
@@ -230,6 +253,27 @@ const FilterBar: React.FC<FilterBarProps> = ({ isOpen, onToggle }) => {
                     {genres.map((genre) => (
                       <MenuItem key={genre.value} value={genre.value}>
                         {genre.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+
+              {/* Language Filter */}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  Language
+                </Typography>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Select Language</InputLabel>
+                  <Select
+                    value={localFilters.language}
+                    label="Select Language"
+                    onChange={handleLanguageChange}
+                  >
+                    {languages.map((lang) => (
+                      <MenuItem key={lang.value} value={lang.value}>
+                        {lang.label}
                       </MenuItem>
                     ))}
                   </Select>

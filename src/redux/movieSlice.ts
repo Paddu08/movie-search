@@ -9,7 +9,8 @@ export interface Movie {
   poster_path: string;
   release_date: string;
   vote_average: number;
-  genre_ids: number[];  // Add genre IDs from TMDB
+  genre_ids: number[];
+  original_language?: string; // <-- Add this (optional for safety)
 }
 
 // Filter function
@@ -26,9 +27,7 @@ const applyFiltersToMovies = (movies: Movie[], filters: MovieSearchState['filter
       return false;
     }
     
-    // Genre filter - now actually works!
     if (filters.genre !== 'all') {
-      // Map genre names to TMDB genre IDs
       const genreMap: { [key: string]: number } = {
         'action': 28,
         'adventure': 12,
@@ -54,6 +53,11 @@ const applyFiltersToMovies = (movies: Movie[], filters: MovieSearchState['filter
       }
     }
     
+    // Language filter
+    if (filters.language && filters.language !== 'all' && movie.original_language !== filters.language) {
+      return false;
+    }
+    
     return true;
   });
 };
@@ -70,6 +74,7 @@ export interface MovieSearchState {
     yearRange: [number, number];
     minRating: number;
     genre: string;
+    language?: string; // <-- Add this
   };
 }
 
@@ -84,16 +89,15 @@ const initialState: MovieSearchState = {
   filters: {
     yearRange: [1900, new Date().getFullYear()],
     minRating: 0,
-    genre: 'all'
+    genre: 'all',
+    language: 'all', // <-- Add this
   },
 };
 
-// Async thunk for searching movies
 export const searchMovies = createAsyncThunk(
   'movies/searchMovies',
   async ({ query, page = 1 }: { query: string; page?: number }, { rejectWithValue }) => {
     try {
-      // You'll need to add your TMDB API key to an environment variable
       const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
       
       console.log('API Key:', API_KEY);
@@ -182,7 +186,8 @@ const movieSlice = createSlice({
       state.filters = {
         yearRange: [1900, new Date().getFullYear()],
         minRating: 0,
-        genre: 'all'
+        genre: 'all',
+        language: 'all', // <-- Add this
       };
       state.filteredMovies = state.movies;
     },
